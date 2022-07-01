@@ -1,0 +1,36 @@
+{{define "content"}}
+   <div class="container mt-4">
+      <h2>Data User</h2>
+      <table class="table">
+         <thead>
+         <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Email</th>
+            <th scope="col">Password</th>
+            <th scope="col">Nama</th>
+            <th scope="col">Role</th>
+            <th scope="col">JK</th>
+            <th scope="col">No Telp</th>
+            <th scope="col">Alamat</th>
+            <th scope="col">Action</th>
+         </tr>
+         </thead>
+         <tbody>
+         <tr>
+{{/*            <td>{{ (index .UserData 0).ID }}</td>*/}}
+{{/*            <td>{{ (index .UserData 0).Email }}</td>*/}}
+
+
+            <td>
+               <button class="btn btn-warning">
+                  <i class="fa-solid fa-pen-to-square"></i>
+               </button>
+               <button class="btn btn-danger">
+                  <i class="fa-solid fa-trash-can"></i>
+               </button>
+            </td>
+         </tr>
+         </tbody>
+      </table>
+   </div>
+{{end}}

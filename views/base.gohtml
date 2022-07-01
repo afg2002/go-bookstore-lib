@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{.Title}}</title>
+    <title>{{.SessionData.Title}}</title>
     <link rel="stylesheet" href="/static/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/fontawesome/css/all.css">
     <style>
@@ -16,14 +16,10 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Go-Perpus</a>
+        <a class="navbar-brand" href="/">Go-Perpus</a>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Beranda</a>
-                </li>
-
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Katalog
@@ -35,38 +31,56 @@
                         <li><a class="dropdown-item" href="#">Lainnya</a></li>
                     </ul>
                 </li>
+
+                {{if (eq .SessionData.Role "admin")}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Admin
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/admin/data_user">[+] Data User</a></li>
+                        <li><a class="dropdown-item" href="#">[+] Data Buku</a></li>
+                    </ul>
+                </li>
+                {{end}}
             </ul>
 
-                {{if .Auth }}
+                {{if .SessionData.Auth }}
                     <span class="navbar-text ">
-                        {{.Email}}
+                        {{.SessionData.Name}}
                     </span>
                     <form action="/logout" method="post">
                      <button class="btn btn-danger m-2" type="Submit"  > Logout </button>
                     </form>
                 {{else}}
-                <button class="btn btn-success m-2" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">Login</button>
+                <button class="btn btn-success m-2" type="button" data-bs-toggle="modal" data-bs-target="#login">Login</button>
+                <button class="btn btn-primary m-2" type="button" data-bs-toggle="modal" data-bs-target="#daftar">Daftar</button>
                 {{end}}
 
         </div>
     </div>
 </nav>
+{{if .SessionData.Message}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{.SessionData.Message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{{end}}
 
-{{/*Modal Login / Daftar*/}}
+{{/*Modal Login*/}}
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="login" tabindex="-1" aria-labelledby="login" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Login / Daftar</h5>
+                <h5 class="modal-title" id="loginLabel">Login</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="post" action="/login">
                     <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">Email address</label>
+                        <label for="email_login" class="form-label">Email address</label>
                         <input type="email" class="form-control"  aria-describedby="emailHelp" name="email">
-                        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputPassword1" class="form-label">Password</label>
@@ -85,9 +99,68 @@
         </div>
     </div>
 </div>
+{{/*End Modal Login*/}}
+{{/*Modal Daftar*/}}
+<div class="modal fade" id="daftar" tabindex="-1" aria-labelledby="login" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Daftar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/signup">
+                    <div class="mb-3">
+                        <label for="name_signup">Name</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email_signup" class="form-label">Email address</label>
+                        <input type="email" class="form-control"  aria-describedby="emailHelp" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_signup" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender_signup" class="form-label">Gender</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="radioButton1" value="L">
+                            <label class="form-check-label" for="radioButton1">
+                                Male
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="radioButton2" value="P">
+                            <label class="form-check-label" for="radioButton2">
+                                Female
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender_signup" class="form-label">No. Telephone</label>
+                        <input type="text" name="no_telp"  class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address_signup" class="form-label">Address</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" placeholder="Address" id="address" style="height: 100px" name="address"></textarea>
+                            <label for="floatingTextarea2">Address</label>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="Submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{/*End Modal Daftar*/}}
+
     <div class="container-fluid">
-        
-        {{template "content"}}
+        {{template "content" .}}
     </div>
 </body>
 <script src="/static/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
