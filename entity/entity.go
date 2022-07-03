@@ -19,7 +19,7 @@ type User struct {
 
 type Data struct {
 	SessionData Session
-	UserData    []*User
+	UserData    []User
 }
 
 type Session struct {

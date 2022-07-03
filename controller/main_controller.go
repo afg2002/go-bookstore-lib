@@ -42,28 +42,25 @@ func AdminDataUserHandler(w http.ResponseWriter, r *http.Request) {
 	defer res.Close()
 	helper.PanicIfError(err)
 
-	//Define Slice UserData
-
-	// Buat array penampungan struct yang isinya slice user (slice of struct)
-	rs := make([]*entity.User, 0)
+	user := entity.User{}
+	var resp []entity.User
 	for res.Next() {
-		rst := new(entity.User) // Buat array kosong untuk entity user
-		err := res.Scan(&rst.ID, &rst.Email, &rst.Password, &rst.Nama, &rst.Role, &rst.JK, &rst.NoTelp, &rst.Alamat)
+		err := res.Scan(&user.ID, &user.Email, &user.Password, &user.Nama, &user.Role, &user.JK, &user.NoTelp, &user.Alamat)
 		helper.PanicIfError(err)
 
-		// Append ke array slice of struct pada entity user (rst)
-		rs = append(rs, rst)
-
+		resp = append(resp, user)
 	}
 
-	// lalu isi semua Slice of Struct Data dengan rs
-	data.UserData = rs
+	data.UserData = resp
+
+	fmt.Println(data.UserData)
+
+	defer con.Close()
 
 	if data.SessionData.Auth != true && data.SessionData.Role != "admin" {
 		http.Redirect(w, r, "/", 303)
 	}
 
-	fmt.Println(data.UserData[0].Nama)
 	t := template.Must(template.ParseFiles("./views/base.gohtml", "./views/admin/user_data.gohtml"))
 	err = t.ExecuteTemplate(w, "base.gohtml", &data)
 	helper.PanicIfError(err)

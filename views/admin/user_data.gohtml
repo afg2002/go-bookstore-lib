@@ -16,20 +16,26 @@
          </tr>
          </thead>
          <tbody>
-         <tr>
-{{/*            <td>{{ (index .UserData 0).ID }}</td>*/}}
-{{/*            <td>{{ (index .UserData 0).Email }}</td>*/}}
-
-
-            <td>
-               <button class="btn btn-warning">
-                  <i class="fa-solid fa-pen-to-square"></i>
-               </button>
-               <button class="btn btn-danger">
-                  <i class="fa-solid fa-trash-can"></i>
-               </button>
-            </td>
-         </tr>
+         {{range .UserData}}
+            <tr>
+               <td>{{.ID}}</td>
+               <td>{{.Email}}</td>
+               <td>{{.Password}}</td>
+               <td>{{.Nama}}</td>
+               <td>{{.Role}}</td>
+               <td>{{.JK}}</td>
+               <td>{{.NoTelp}}</td>
+               <td>{{.Alamat}}</td>
+               <td>
+                  <button class="btn btn-warning">
+                     <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button class="btn btn-danger">
+                     <i class="fa-solid fa-trash-can"></i>
+                  </button>
+               </td>
+            </tr>
+         {{end}}
          </tbody>
       </table>
    </div>
