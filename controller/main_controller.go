@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -52,8 +51,6 @@ func AdminDataUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.UserData = resp
-
-	fmt.Println(data.UserData)
 
 	defer con.Close()
 

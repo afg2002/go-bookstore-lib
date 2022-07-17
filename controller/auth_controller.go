@@ -2,7 +2,6 @@ package controller
 
 import (
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"net/http"
 	"perpustakaan/db"
 	"perpustakaan/entity"
@@ -75,7 +74,6 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 303)
 		} else {
-			log.Println("Halo")
 			query := "INSERT INTO user(email,password,nama,role,jenis_kelamin,no_telp,alamat) VALUES (?,?,?,?,?,?,?)"
 			password := r.FormValue("password")
 			hashedPassword, err2 := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

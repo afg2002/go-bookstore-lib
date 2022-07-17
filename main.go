@@ -32,6 +32,10 @@ func main() {
 
 	//Admin
 	mux.HandleFunc("/admin/data_user", controller.AdminDataUserHandler)
+	mux.HandleFunc("/admin/data_user/delete", controller.AdminDeleteUser)
+	mux.HandleFunc("/admin/data_user/add_user", controller.AdminAddUser)
+	mux.HandleFunc("/admin/data_user/edit_user", controller.AdminEditUserPage)
+	mux.HandleFunc("/admin/data_user/edit_user/update", controller.AdminUpdateUser)
 
 	//Setting Server
 	address := "localhost:5000"
