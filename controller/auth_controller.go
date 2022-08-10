@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"perpustakaan/db"
 	"perpustakaan/entity"
 	"perpustakaan/helper"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +37,12 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 				session.Values["role"] = user.Role
 				session.Values["name"] = user.Nama
 				session.Save(r, w)
-				http.Redirect(w, r, "/", 302)
+				http.Redirect(w, r, "/", http.StatusFound)
 			} else {
 				session.Values["message"] = "Email Atau Password Anda Salah."
 				session.Options.MaxAge = 5
 				session.Save(r, w)
-				http.Redirect(w, r, "/", 303)
+				http.Redirect(w, r, "/", http.StatusSeeOther)
 			}
 		}
 	} else {
@@ -55,7 +56,7 @@ func LogoutAuth(w http.ResponseWriter, r *http.Request) {
 	session.Options.MaxAge = -1
 	session.Save(r, w)
 	//Redirect
-	http.Redirect(w, r, "/", 302)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +73,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 			session.Values["message"] = "Email sudah terpakai."
 			session.Options.MaxAge = 1
 			session.Save(r, w)
-			http.Redirect(w, r, "/", 303)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		} else {
 			query := "INSERT INTO user(email,password,nama,role,jenis_kelamin,no_telp,alamat) VALUES (?,?,?,?,?,?,?)"
 			password := r.FormValue("password")
@@ -94,7 +95,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 			user.ID = int(id)
 
 			//Redirect
-			http.Redirect(w, r, "/", 303)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	} else {
 		//Jika method selain post maka tidak diperbolehkan

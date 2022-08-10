@@ -37,6 +37,11 @@ func main() {
 	mux.HandleFunc("/admin/data_user/edit_user", controller.AdminEditUserPage)
 	mux.HandleFunc("/admin/data_user/edit_user/update", controller.AdminUpdateUser)
 
+	//Data Buku
+	mux.HandleFunc("/admin/data_buku", controller.AdminDataBuku)
+	mux.HandleFunc("/admin/data_buku/delete", controller.AdminDeleteBuku)
+	mux.HandleFunc("/admin/data_buku/add_buku", controller.AdminAddDataBuku)
+
 	//Setting Server
 	address := "localhost:5000"
 	fmt.Printf("Server started at %s\n", address)
@@ -53,4 +58,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 }

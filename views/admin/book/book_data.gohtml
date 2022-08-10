@@ -1,0 +1,104 @@
+{{define "content"}}
+   <div class="container mt-4">
+      <h2>Data Buku</h2>
+
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop"> [+] Tambah Data</button>
+
+
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="staticBackdropLabel">Tambah Data User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                  <form action="/admin/data_buku/add_buku" method="POST" enctype="multipart/form-data">
+                     <div class="mb-3">
+                        <label for="judulBuku" class="form-label">Judul</label>
+                        <input type="text" class="form-control" id="judulBuku" aria-describedby="emailHelp" name="judulBuku" autocomplete="off">
+                     </div>
+                     <div class="mb-3">
+                        <label for="pengarangBuku" class="form-label">Pengarang </label>
+                        <input type="text" class="form-control" id="pengarangBuku" name="pengarangBuku" autocomplete="off">
+                     </div>
+                     <div class="mb-3">
+                        <label for="kategoriBuku" class="form-label">Kategori</label>
+                        <input type="text" class="form-control" id="kategoriBuku" name="kategoriBuku" autocomplete="off">
+                     </div>
+                     <div class="mb-3">
+                        <label for="penerbitBuku" class="form-label">Penerbit</label>
+                        <input type="text" class="form-control" id="penerbitBuku" name="penerbitBuku" autocomplete="off">
+                     </div>
+                     
+                     <div class="mb-3">
+                        <label for="tahunTerbit">Tahun</label>
+                        <input type="number" class="form-control" name="tahunTerbit" id="tahunTerbit" autocomplete="off" min="1900" max="2100">
+                     </div>
+
+                     <div class="mb-3">
+                        <label for="stokBuku">Stok</label>
+                        <input type="number" class="form-control" name="stokBuku" id="stokBuku" autocomplete="off" min="1">
+                     </div>
+                     
+                     <div>
+                        <label for="coverBuku">Cover Buku</label>
+                     </div>
+
+                     <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="coverBuku" name="coverBuku">
+                        <label class="input-group-text" for="coverBuku">Upload</label>
+                     </div>
+
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <table class="table">
+         <thead>
+         <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Cover Buku</th>
+            <th scope="col">Judul</th>
+            <th scope="col">Pengarang</th>
+            <th scope="col">Kategori</th>
+            <th scope="col">Penerbit</th>
+            <th scope="col">Tahun</th>
+            <th scope="col">Stok</th>
+            <th scope="col">Action</th>
+         </tr>
+         </thead>
+         <tbody>
+
+         {{range .BookData}}
+            <tr>
+               <td>{{.ID}}</td>
+               <td><img src="/static/cover_buku/{{.Cover}}" alt="{{.Judul}}" height="75px" width="75px"></td>
+               <td>{{.Judul}}</td>
+               <td>{{.Pengarang}}</td>
+               <td>{{.Kategori}}</td>
+               <td>{{.Penerbit}}</td>
+               <td>{{.Tahun}}</td>
+               <td>{{.Stok}}</td>
+               <td>
+                <a class="btn btn-warning" href="/admin/data_buku/edit_buku?id={{.ID}}">
+                     <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+       
+                 <a href="/admin/data_buku/delete?id={{.ID}}" class="btn btn-danger">
+                    <i class="fa-solid fa-trash-can"></i>
+                </a>
+               </td>
+            </tr>
+         {{end}}
+         </tbody>
+      </table>
+   </div>
+{{end}}

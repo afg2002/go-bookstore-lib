@@ -17,9 +17,21 @@ type User struct {
 	Alamat   string
 }
 
+type Book struct {
+	ID        int
+	Cover     string
+	Judul     string
+	Pengarang string
+	Kategori  string
+	Penerbit  string
+	Tahun     string
+	Stok      string
+}
+
 type Data struct {
 	SessionData Session
 	UserData    []User
+	BookData    []Book
 }
 
 type Session struct {

@@ -6,7 +6,7 @@ import (
 )
 
 func ConnectionDB() *sql.DB {
-	db, err := sql.Open("mysql", "root@/perpustakaan")
+	db, err := sql.Open("mysql", "phpmyadmin:admin@/perpustakaan")
 	if err != nil {
 		panic(err)
 	}
