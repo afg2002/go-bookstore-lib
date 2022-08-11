@@ -5,9 +5,31 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"os"
 	"perpustakaan/controller"
 	"time"
 )
+
+// feature that prevent others to see file directory
+type justFilesFilesystem struct {
+	fs http.FileSystem
+}
+
+func (fs justFilesFilesystem) Open(name string) (http.File, error) {
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return neuteredReaddirFile{f}, nil
+}
+
+type neuteredReaddirFile struct {
+	http.File
+}
+
+func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
+	return nil, nil
+}
 
 //go:embed assets
 var resources embed.FS
@@ -19,6 +41,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	//Static Route
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	images := justFilesFilesystem{http.Dir("./images/")}
+	mux.Handle("/images/", http.StripPrefix("/images", http.FileServer(images)))
+
 	//Route
 	mux.HandleFunc("/", controller.HandlerIndex)
 
@@ -26,9 +53,6 @@ func main() {
 	mux.HandleFunc("/signup", controller.SignupHandler)
 	mux.HandleFunc("/login", controller.LoginAuth)
 	mux.HandleFunc("/logout", controller.LogoutAuth)
-
-	//Static Route
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	//Admin
 	mux.HandleFunc("/admin/data_user", controller.AdminDataUserHandler)
