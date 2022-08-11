@@ -1,12 +1,11 @@
 package controller
 
 import (
-	"fmt"
+	"errors"
 	"html/template"
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"perpustakaan/db"
 	"perpustakaan/entity"
 	"perpustakaan/helper"
@@ -174,8 +173,6 @@ func AdminDataBuku(w http.ResponseWriter, r *http.Request) {
 
 	data.BookData = resp
 
-	fmt.Println(resp)
-
 	defer con.Close()
 
 	if data.SessionData.Auth != true && data.SessionData.Role != "admin" {
@@ -202,8 +199,7 @@ func AdminAddDataBuku(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	fileName := path.Base(fileHeader.Filename)
-	dest, err := os.Create("./assets/cover_buku/" + fileName)
+	dest, err := os.Create("./images/" + fileHeader.Filename)
 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -215,10 +211,9 @@ func AdminAddDataBuku(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(fileName, dest)
 
 	buku := entity.Book{
-		Cover:     fileName,
+		Cover:     fileHeader.Filename,
 		Judul:     r.FormValue("judulBuku"),
 		Pengarang: r.FormValue("pengarangBuku"),
 		Kategori:  r.FormValue("kategoriBuku"),
@@ -226,6 +221,7 @@ func AdminAddDataBuku(w http.ResponseWriter, r *http.Request) {
 		Tahun:     r.FormValue("tahunTerbit"),
 		Stok:      r.FormValue("stokBuku"),
 	}
+
 	result, err2 := con.Exec(query, buku.Cover, buku.Judul, buku.Pengarang, buku.Kategori, buku.Penerbit, buku.Tahun, buku.Stok)
 	helper.PanicIfError(err2)
 	id, err3 := result.LastInsertId()
@@ -240,9 +236,28 @@ func AdminDeleteBuku(w http.ResponseWriter, r *http.Request) {
 	con := db.ConnectionDB()
 
 	idUserParam := r.URL.Query().Get("id")
-	sql := "DELETE FROM buku WHERE id_buku =  ?"
-	_, err := con.Exec(sql, idUserParam)
+
+	sqlSelect := "SELECT cover_buku FROM buku WHERE id_buku = ?"
+	getCoverBuku, err := con.Query(sqlSelect, idUserParam)
 	helper.PanicIfError(err)
+
+	buku := entity.Book{}
+	if getCoverBuku.Next() {
+		err2 := getCoverBuku.Scan(&buku.Cover)
+		helper.PanicIfError(err2)
+	}
+
+	if _, err := os.Stat("./images/" + buku.Cover); errors.Is(err, os.ErrNotExist) {
+
+	} else {
+		path := "./images/" + buku.Cover
+		err = os.Remove(path)
+		helper.PanicIfError(err)
+	}
+
+	sqlDel := "DELETE FROM buku WHERE id_buku =  ?"
+	_, err3 := con.Exec(sqlDel, idUserParam)
+	helper.PanicIfError(err3)
 
 	//Redirect
 	http.Redirect(w, r, "/admin/data_buku", http.StatusSeeOther)
