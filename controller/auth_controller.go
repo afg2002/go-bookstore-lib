@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"perpustakaan/db"
 	"perpustakaan/entity"
@@ -12,9 +13,10 @@ import (
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	//Cek apakah methodnya sudah post
 	if r.Method == http.MethodPost {
+
 		//Koneksi dan query database
 		con := db.ConnectionDB()
-		sql := "SELECT nama,role,email,password FROM user WHERE email = ?"
+		sql := "SELECT id_user,nama,role,email,password FROM user WHERE email = ?"
 
 		//Ambil data dari form
 		email := r.FormValue("email")
@@ -26,13 +28,19 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 		user := entity.User{}
 
 		//Session
-		session, _ := store.Get(r, "session_login")
+		session, errSession := store.Get(r, "session_login")
+		helper.PanicIfError(errSession)
+
 		if rows.Next() {
-			err := rows.Scan(&user.Nama, &user.Role, &user.Email, &user.Password)
+
+			err := rows.Scan(&user.ID, &user.Nama, &user.Role, &user.Email, &user.Password)
 			helper.PanicIfError(err)
 			comparePassword := helper.ComparePassword(user.Password, password)
+
 			if comparePassword {
+				fmt.Println("Masuk ")
 				session.Values["auth"] = true
+				session.Values["id"] = user.ID
 				session.Values["email"] = user.Email
 				session.Values["role"] = user.Role
 				session.Values["name"] = user.Nama
@@ -40,10 +48,15 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 				http.Redirect(w, r, "/", http.StatusFound)
 			} else {
 				session.Values["message"] = "Email Atau Password Anda Salah."
-				session.Options.MaxAge = 5
+				session.Options.MaxAge = 3
 				session.Save(r, w)
 				http.Redirect(w, r, "/", http.StatusSeeOther)
 			}
+		} else {
+			session.Values["message"] = "Email Belum Terdaftar."
+			session.Options.MaxAge = 3
+			session.Save(r, w)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	} else {
 		//Jika method selain post maka tidak diperbolehkan
@@ -85,7 +98,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 				Nama:     r.FormValue("name"),
 				Role:     "anggota",
 				JK:       r.FormValue("gender"),
-				NoTelp:   r.FormValue("no_telp"),
+				NoTelp:   "+62" + r.FormValue("no_telp"),
 				Alamat:   r.FormValue("address"),
 			}
 			result, err := con.Exec(query, user.Email, user.Password, user.Nama, user.Role, user.JK, user.NoTelp, user.Alamat)
