@@ -1,13 +1,10 @@
 package main
 
 import (
-	"embed"
 	"fmt"
-	"io/fs"
 	"net/http"
 	"os"
 	"perpustakaan/controller"
-	"time"
 )
 
 // feature that prevent others to see file directory
@@ -31,22 +28,18 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 	return nil, nil
 }
 
-//go:embed assets
-var resources embed.FS
-
 func main() {
-	//directory
-	dir, _ := fs.Sub(resources, "assets")
-	fileServer := http.FileServer(http.FS(dir))
 
 	mux := http.NewServeMux()
 
 	//Static Route
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	images := justFilesFilesystem{http.Dir("./images/")}
+	assets := justFilesFilesystem{http.Dir("./assets")}
+	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(assets)))
+
+	images := justFilesFilesystem{http.Dir("./images")}
 	mux.Handle("/images/", http.StripPrefix("/images", http.FileServer(images)))
 
-	//Route
+	//Index Route
 	mux.HandleFunc("/", controller.HandlerIndex)
 
 	//Auth Route
@@ -66,15 +59,18 @@ func main() {
 	mux.HandleFunc("/admin/data_buku/delete", controller.AdminDeleteBuku)
 	mux.HandleFunc("/admin/data_buku/add_buku", controller.AdminAddDataBuku)
 
+	// Data Keranjang (Cart)
+	mux.HandleFunc("/cart/", controller.UserCart)
+	//---Add To Cart----
+	mux.HandleFunc("/books/", controller.Books)
+
 	//Setting Server
 	address := "localhost:5000"
 	fmt.Printf("Server started at %s\n", address)
 
 	server := http.Server{
-		Addr:              address,
-		Handler:           mux,
-		ReadHeaderTimeout: 10 * time.Minute,
-		WriteTimeout:      10 * time.Minute,
+		Addr:    address,
+		Handler: mux,
 	}
 	err := server.ListenAndServe()
 
