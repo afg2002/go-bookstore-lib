@@ -1,0 +1,48 @@
+.card{
+    margin-bottom: 20px;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 50vh;
+    object-fit: cover;
+}
+
+
+.card-pengarang p{
+    font-size: 9pt;
+}
+
+.card-harga p{
+    font-size: 16pt;
+    color: #0060ae;
+}
+
+.table-image {
+    thead {
+      td, th {
+        border: 0;
+        color: #666;
+        font-size: 0.8rem;
+      }
+    }
+    
+    td, th {
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+  
+  .price {
+    margin-left: 1rem;
+  }
+  
+  .modal-footer-cart {
+    padding-top: 0rem;
+  }
+
+  .error-container{
+    position:absolute;
+    bottom:0;
+    right:20px;
+  }
