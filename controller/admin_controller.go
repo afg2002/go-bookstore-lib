@@ -165,7 +165,7 @@ func AdminDataBuku(w http.ResponseWriter, r *http.Request) {
 	book := entity.Book{}
 	var resp []entity.Book
 	for res.Next() {
-		err := res.Scan(&book.ID, &book.Cover, &book.Judul, &book.Pengarang, &book.Kategori, &book.Penerbit, &book.Stok, &book.Tahun)
+		err = res.Scan(&book.ID, &book.Cover, &book.Judul, &book.Harga, &book.Pengarang, &book.Kategori, &book.Penerbit, &book.Tahun, &book.Stok, &book.Deskripsi)
 		helper.PanicIfError(err)
 
 		resp = append(resp, book)
@@ -182,12 +182,11 @@ func AdminDataBuku(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("./views/base.gohtml", "./views/admin/book/book_data.gohtml"))
 	err = t.ExecuteTemplate(w, "base.gohtml", &data)
 	helper.PanicIfError(err)
-
 }
 
 func AdminAddDataBuku(w http.ResponseWriter, r *http.Request) {
 	con := db.ConnectionDB()
-	query := "INSERT INTO buku(cover_buku,judul,pengarang,kategori,penerbit,tahun,stok) VALUES (?,?,?,?,?,?,?)"
+	query := "INSERT INTO buku(cover_buku,judul,harga,pengarang,kategori,penerbit,tahun,stok,deskripsi) VALUES (?,?,?,?,?,?,?,?,?)"
 
 	r.ParseMultipartForm(10 << 20)
 	file, fileHeader, err := r.FormFile("coverBuku")
@@ -212,17 +211,20 @@ func AdminAddDataBuku(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	harga, _ := strconv.Atoi(r.FormValue("hargaBuku")) // convert 'harga' from string to Integer
 	buku := entity.Book{
 		Cover:     fileHeader.Filename,
 		Judul:     r.FormValue("judulBuku"),
+		Harga:     harga,
 		Pengarang: r.FormValue("pengarangBuku"),
 		Kategori:  r.FormValue("kategoriBuku"),
 		Penerbit:  r.FormValue("penerbitBuku"),
 		Tahun:     r.FormValue("tahunTerbit"),
 		Stok:      r.FormValue("stokBuku"),
+		Deskripsi: r.FormValue("deskripsi"),
 	}
 
-	result, err2 := con.Exec(query, buku.Cover, buku.Judul, buku.Pengarang, buku.Kategori, buku.Penerbit, buku.Tahun, buku.Stok)
+	result, err2 := con.Exec(query, buku.Cover, buku.Judul, buku.Harga, buku.Pengarang, buku.Kategori, buku.Penerbit, buku.Tahun, buku.Stok, buku.Deskripsi)
 	helper.PanicIfError(err2)
 	id, err3 := result.LastInsertId()
 	buku.ID = int(id)
