@@ -21,11 +21,13 @@ type Book struct {
 	ID        int
 	Cover     string
 	Judul     string
+	Harga     int
 	Pengarang string
 	Kategori  string
 	Penerbit  string
 	Tahun     string
 	Stok      string
+	Deskripsi string
 }
 
 type Data struct {
@@ -35,5 +37,13 @@ type Data struct {
 }
 
 type Session struct {
-	Title, Auth, Email, Name, Role, Message any
+	ID, Title, Auth, Email, Name, Role, Message any
+}
+
+type Cart struct {
+	IdCart       int
+	JudulBuku    string
+	CoverBuku    string
+	Harga        int
+	TotalPerItem int
 }
