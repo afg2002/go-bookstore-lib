@@ -15,6 +15,13 @@
                </div>
                <div class="modal-body">
                   <form action="/admin/data_buku/add_buku" method="POST" enctype="multipart/form-data">
+                  <div>
+                        <label for="coverBuku">Cover Buku</label>
+                  </div>
+                   <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="coverBuku" name="coverBuku" required>
+                        <label class="input-group-text" for="coverBuku">Upload</label>
+                     </div>
                      <div class="mb-3">
                         <label for="judulBuku" class="form-label">Judul</label>
                         <input type="text" class="form-control" id="judulBuku" aria-describedby="emailHelp" name="judulBuku" autocomplete="off">
@@ -36,20 +43,21 @@
                         <label for="tahunTerbit">Tahun</label>
                         <input type="number" class="form-control" name="tahunTerbit" id="tahunTerbit" autocomplete="off" min="1900" max="2100">
                      </div>
-
+                     <div class="mb-3">
+                        <label for="stokBuku">Harga</label>
+                        <input type="number" class="form-control" name="hargaBuku" id="hargaBuku" autocomplete="off" min="1">
+                     </div>
                      <div class="mb-3">
                         <label for="stokBuku">Stok</label>
                         <input type="number" class="form-control" name="stokBuku" id="stokBuku" autocomplete="off" min="1">
                      </div>
+                     <div class="mb-3">
+                        <div class="form-floating">
+                           <textarea class="form-control" id="deskripsiBuku" style="height: 100px;resize:none;" name="deskripsi"></textarea>
+                           <label for="deskripsiBuku">Deskripsi Buku</label>
+                         </div>
+                     </div>
                      
-                     <div>
-                        <label for="coverBuku">Cover Buku</label>
-                     </div>
-
-                     <div class="input-group mb-3">
-                        <input type="file" class="form-control" id="coverBuku" name="coverBuku">
-                        <label class="input-group-text" for="coverBuku">Upload</label>
-                     </div>
 
                </div>
                <div class="modal-footer">
@@ -61,12 +69,13 @@
          </div>
       </div>
 
-      <table class="table">
+      <table class="table-data">
          <thead>
          <tr>
             <th scope="col">ID</th>
             <th scope="col">Cover Buku</th>
             <th scope="col">Judul</th>
+            <th scope="col">Harga</th>
             <th scope="col">Pengarang</th>
             <th scope="col">Kategori</th>
             <th scope="col">Penerbit</th>
@@ -76,12 +85,12 @@
          </tr>
          </thead>
          <tbody>
-
          {{range .BookData}}
             <tr>
                <td>{{.ID}}</td>
                <td><img src="/images/{{.Cover}}" alt="{{.Judul}}" height="75px" width="75px"></td>
                <td>{{.Judul}}</td>
+               <td>{{.Harga}}</td>
                <td>{{.Pengarang}}</td>
                <td>{{.Kategori}}</td>
                <td>{{.Penerbit}}</td>
@@ -97,6 +106,11 @@
                 </a>
                </td>
             </tr>
+         
+         {{else}}
+         <tr>
+            <td colspan="9" style="text-align: center;">Tidak Ada</td>
+         </tr>
          {{end}}
          </tbody>
       </table>

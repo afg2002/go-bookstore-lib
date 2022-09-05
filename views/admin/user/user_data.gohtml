@@ -21,11 +21,11 @@
                      </div>
                      <div class="mb-3">
                         <label for="userPass" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="userPass" name="userPass" utocomplete="off">
+                        <input type="password" class="form-control" id="userPass" name="userPass" autocomplete="off">
                      </div>
                      <div class="mb-3">
                         <label for="userNama" class="form-label">Nama</label>
-                        <input type="password" class="form-control" id="userNama" name="userNama" utocomplete="off">
+                        <input type="text" class="form-control" id="userNama" name="userNama" autocomplete="off">
                      </div>
                      <div class="mb-3">
                         <label for="userNama" class="form-label">Role</label>
@@ -65,15 +65,14 @@
          </div>
       </div>
 
-      <table class="table">
+      <table class="table-data" id="table-data">
          <thead>
          <tr>
             <th scope="col">ID</th>
             <th scope="col">Email</th>
-            <th scope="col">Password</th>
             <th scope="col">Nama</th>
             <th scope="col">Role</th>
-            <th scope="col">JK</th>
+            <th scope="col">Jenis Kelamin</th>
             <th scope="col">No Telp</th>
             <th scope="col">Alamat</th>
             <th scope="col">Action</th>
@@ -86,7 +85,6 @@
             <tr>
                <td>{{.ID}}</td>
                <td>{{.Email}}</td>
-               <td>{{.Password}}</td>
                <td>{{.Nama}}</td>
                <td>{{.Role}}</td>
                <td>{{.JK}}</td>
