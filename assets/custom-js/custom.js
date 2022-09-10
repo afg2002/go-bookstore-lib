@@ -1,14 +1,48 @@
+var tableData =  $(".table-data")
+var tableCart = $("#table-cart")
+
 // Init DataTable
 $(document).ready(function(){
-    $(".table-data").DataTable()
-    
+    tableData.DataTable()
+})
+
+var arrObj = []
+
+// checkout function
+$(".modal-content").on('click','#btnCheckout',function(){
+    if(confirm("Apakah anda yakin ingin memesan ini ?") == true){
+        checkoutAndChangeQty()
+        url = "http://localhost:5000/checkout/"
+        if (arrObj.length > 0){
+            $.ajax({
+                url : url,
+                type : "POST",
+                data : JSON.stringify(arrObj),
+                contentType : "application/json"
+                
+            }).done(function (){
+                // Hapus semua item cart dari Backend dan frontend
+                var idCart =  tableCart.DataTable().column(0).data()
+                for (let i = 0; i < idCart.length; i++) {
+                    let el = idCart[i];
+                    deleteCartItem(el)
+                }
+                arrObj.splice(0,arrObj.length)
+            }).fail(function (){
+                alert("Error")
+            })
+        }else if (arrObj.length === 0){
+            alert("Tidak ada barang yang di checkout")
+        }else if (arrObj.length === 4){
+            alert("Barang tidak boleh lebih dari 4")
+        }
+    }
+   
     
 })
 
-var obj = [{}]
 // Realtime data when change the quantity
-$(document).on('change', '.qty', function(e) {
-
+$(".modal-content").on('change', '.qty', function(e) {
      //Paksa min max
      var max = parseInt($(this).attr('max'));
      var min = parseInt($(this).attr('min'));
@@ -19,57 +53,67 @@ $(document).on('change', '.qty', function(e) {
         $(this).val(min);
      } 
 
+    checkoutAndChangeQty()
+ });
 
+
+// function changeQtyDB(params) {
+    
+// }
+ 
+function checkoutAndChangeQty(){
     var editTotalPerItem = $("input[name='qty[]']")
               .map(function(){return $(this).val();}).get();
-    var title =  $("#table-cart").DataTable().column(2).data()
+    var idCart =  tableCart.DataTable().column(0).data()
     var price = $('#table-cart').DataTable().column(4).data()
     var total = 0
-    for (let i = 0; i < title.length; i++) {
-        let judul = title[i]
+    for (let i = 0; i < idCart.length; i++) {
+        let cartId = idCart[i]
         let harga = price[i]
         let qty = parseInt(editTotalPerItem[i])
         total += harga*qty
-        obj[0][judul]['qty'] = qty
+        let index = arrObj.findIndex(key => key.idCart === cartId);
+        if (index == -1){
+            arrObj.push({
+                idCart : cartId,
+                qty : qty,
+                harga : harga
+            })
+        }else{
+            arrObj[i].idCart = cartId
+            arrObj[i].qty = qty
+            arrObj[i].harga = harga
+        }
     }
-    console.table(obj)
+    console.table(arrObj)
     $(".price").html("Rp."+total)
+}
 
-    
-    
- });
 
-function changeQtyPrice() {
-    var title =  $("#table-cart").DataTable().column(2).data()
-    var qty = $("#table-cart").DataTable().column(3).data()
-    var sum = $('#table-cart').DataTable().column(4).data()
-    var tempTotal = 0
-    for (let i = 0; i < sum.length; i++) {
-        let judul = title[i]
-        let price = sum[i]
-        let perItem = qty[i]
-        tempTotal += perItem * price
-        obj[0][judul] = {'qty' : perItem, 'price' : price}
+function searchKeyForDelete(idCart) {
+    var __FOUND = -1;
+    for(var i=0; i<arrObj.length; i++) {
+        if(arrObj[i].idCart == idCart) {
+            __FOUND = i;
+            break;
+        }
     }
-
-    $(".price").html("Rp."+tempTotal)
-    console.table(obj)
+    arrObj.splice(__FOUND,1)
 }
 
 let apiCart = 'http://localhost:5000/cart/'
 function deleteCartItem(idCart) {
     var url = apiCart+idCart
-    console.log(url)
     $.ajax({
         url : url,
         type : "DELETE"
     }).done(function (){
-        $("#table-cart").DataTable().ajax.reload();
-
-        
+        tableCart.DataTable().ajax.reload();
+        // delete arrObj[0][idCart]
+        searchKeyForDelete(idCart) 
         setTimeout(() => {
-            changeQtyPrice();
-        }, 500);
+            checkoutAndChangeQty();
+        }, 1000);
 
         
     }).fail(function (response){
@@ -83,9 +127,9 @@ function cartModalShow(){
     var url = apiCart + getIdUser
     
     
-    $("#table-cart").DataTable({
+    tableCart.DataTable({
         responsive:true,
-        initComplete : changeQtyPrice,
+        initComplete : checkoutAndChangeQty,
         bDestroy: true,
         ajax : {
             url : url,
@@ -142,7 +186,6 @@ function cartModalShow(){
     var cartModal = new bootstrap.Modal(document.getElementById('cartModal'))
     cartModal.show();
 
-    console.log(dataTable.column(4).data().sum())
     
 }
 // Get Details of Book with Button (Ajax)
@@ -186,8 +229,8 @@ function BookDetailAndCartFunc(book) {
 
             if(response.target.status == 200 && response.target.readyState == 4){
                 alert('Sukses ditambahkan', 'success')
-            }else{
-                alert('Gagal ditambahkan', 'danger')
+            }else if(response.target.status == 406){
+                alert('Gagal menambahkan karena melebihi limit', 'danger')
             }
 
             setTimeout(function() {
@@ -197,4 +240,3 @@ function BookDetailAndCartFunc(book) {
     }
     xhr.send();
 }
-
