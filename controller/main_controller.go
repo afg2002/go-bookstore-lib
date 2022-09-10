@@ -2,13 +2,16 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"perpustakaan/db"
 	"perpustakaan/entity"
 	"perpustakaan/helper"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -125,8 +128,11 @@ func Books(w http.ResponseWriter, r *http.Request) {
 		log.Print(splitId)
 		con := db.ConnectionDB()
 		sql := "SELECT * FROM cart WHERE id_buku = ? AND id_user = ?"
+		rowsCountSql := "SELECT COUNT(*) FROM cart WHERE id_user = ?"
 
 		res, err := con.Query(sql, splitId[0], splitId[1])
+		resCount, errRescount := con.Query(rowsCountSql, splitId[1])
+		helper.PanicIfError(errRescount)
 
 		helper.PanicIfError(err)
 		defer res.Close()
@@ -137,12 +143,64 @@ func Books(w http.ResponseWriter, r *http.Request) {
 			helper.PanicIfError(err2)
 
 		} else {
-			sql := "INSERT INTO cart(id_buku,id_user,total) VALUES (?,?,?)"
-			_, err := con.Exec(sql, splitId[0], splitId[1], 1)
-			helper.PanicIfError(err)
+			var totalCount int
+			if resCount.Next() {
+				if err := resCount.Scan(&totalCount); err != nil {
+					log.Fatal(err)
+				}
+			}
+			if totalCount <= 3 { // jika usercart lebih dari 4 maka tidak diperbolehkan
+				sql := "INSERT INTO cart(id_buku,id_user,total) VALUES (?,?,?)"
+				_, err := con.Exec(sql, splitId[0], splitId[1], 1)
+				helper.PanicIfError(err)
+			} else {
+				http.Error(w, "Sudah lebih dari 4", http.StatusNotAcceptable)
+			}
+			fmt.Println(totalCount)
 		}
 
 		defer con.Close()
 
+	}
+}
+
+type Data struct {
+	IdCart int
+	Qty    int
+	Harga  int
+}
+
+func UserCheckout(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		var data []Data
+		var idCartData []string
+		var totalBelanja int
+		payload, _ := ioutil.ReadAll(r.Body)
+		var err = json.Unmarshal([]byte(string(payload)), &data)
+		if err != nil {
+			panic(err)
+		}
+
+		// -----------------
+		con := db.ConnectionDB()
+
+		for i := 0; i < len(data); i++ {
+			strIdCartData := strconv.Itoa(data[i].IdCart)
+			idCartData = append(idCartData, strIdCartData)
+
+			totalBelanja += data[i].Qty * data[i].Harga
+		}
+
+		defer con.Close()
+		fmt.Println(totalBelanja)
+		kumpulan_id_cart := strings.Join(idCartData[:], ",")
+		sql := "INSERT INTO checkout (arr_id_cart,total_bayar) values (?,?)"
+		_, errInsert := con.Exec(sql, kumpulan_id_cart, totalBelanja)
+		helper.PanicIfError(errInsert)
+
+		w.Write([]byte("Sukses"))
+	} else {
+		//Jika method selain post maka tidak diperbolehkan
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
