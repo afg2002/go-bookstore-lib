@@ -61,6 +61,8 @@ func main() {
 
 	// Data Keranjang (Cart)
 	mux.HandleFunc("/cart/", controller.UserCart)
+	// --- Checkout ---
+	mux.HandleFunc("/checkout/", controller.UserCheckout)
 	//---Add To Cart----
 	mux.HandleFunc("/books/", controller.Books)
 
