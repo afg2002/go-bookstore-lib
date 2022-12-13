@@ -11,6 +11,8 @@ import (
 	"perpustakaan/db"
 	"perpustakaan/entity"
 	"perpustakaan/helper"
+	"perpustakaan/repository"
+	"perpustakaan/service"
 	"strconv"
 	"strings"
 
@@ -28,22 +30,25 @@ func HandlerIndex(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session_login")
 	t := template.Must(template.ParseFiles("./views/base.gohtml", "./views/index.gohtml"))
 
-	// Get the book data
-	con := db.ConnectionDB()
-	sql := "SELECT * FROM buku"
-	result, err := con.Query(sql)
-	helper.PanicIfError(err)
+	//// Get the book data
+	//con := db.ConnectionDB()
+	//sql := "SELECT * FROM buku"
+	//result, err := con.Query(sql)
+	//helper.PanicIfError(err)
+	//
+	//book := entity.Book{}
+	//var resp []entity.Book
+	//for result.Next() {
+	//	err = result.Scan(&book.ID, &book.Cover, &book.Judul, &book.Harga, &book.Pengarang, &book.Kategori, &book.Penerbit, &book.Tahun, &book.Stok, &book.Deskripsi)
+	//	helper.PanicIfError(err)
+	//
+	//	resp = append(resp, book)
+	//}
+	//data.BookData = resp
 
-	book := entity.Book{}
-	var resp []entity.Book
-	for result.Next() {
-		err = result.Scan(&book.ID, &book.Cover, &book.Judul, &book.Harga, &book.Pengarang, &book.Kategori, &book.Penerbit, &book.Tahun, &book.Stok, &book.Deskripsi)
-		helper.PanicIfError(err)
+	serviceImpl := service.NewMainServiceImpl(repository.NewMainRepositoryImpl())
 
-		resp = append(resp, book)
-	}
-	data.BookData = resp
-
+	data := serviceImpl.FindAll()
 	data.SessionData.Title = "Go Perpus"
 	data.SessionData.ID = session.Values["id"]
 	data.SessionData.Auth = session.Values["auth"]
@@ -51,7 +56,7 @@ func HandlerIndex(w http.ResponseWriter, r *http.Request) {
 	data.SessionData.Name = session.Values["name"]
 	data.SessionData.Role = session.Values["role"]
 	data.SessionData.Message = session.Values["message"]
-	err = t.ExecuteTemplate(w, base, &data)
+	err := t.ExecuteTemplate(w, base, &data)
 	helper.PanicIfError(err)
 
 }
